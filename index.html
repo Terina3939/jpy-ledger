@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日元记账本</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部标题与总资产概览 -->
+        <header class="app-header">
+            <h1>日元多分类预算记账</h1>
+            <div class="total-badge">
+                <span>全分类剩余总可支配: </span>
+                <strong id="total-balance">0 JPY</strong>
+            </div>
+        </header>
+
+        <!-- 导航标签页 -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'dashboard')">看板</button>
+            <button class="tab-btn" onclick="switchTab(event, 'add-expense')">记一笔</button>
+            <button class="tab-btn" onclick="switchTab(event, 'budget-settings')">预算设置</button>
+            <button class="tab-btn" onclick="switchTab(event, 'history')">明细</button>
+            <button class="tab-btn" onclick="switchTab(event, 'backup')">备份</button>
+        </nav>
+
+        <!-- 1. 看板页面 -->
+        <section id="tab-dashboard" class="tab-content active">
+            <div id="category-cards" class="cards-grid">
+                <!-- 动态生成 5 大分类卡片 -->
+            </div>
+        </section>
+
+        <!-- 2. 记账页面 -->
+        <section id="tab-add-expense" class="tab-content">
+            <form id="expense-form" onsubmit="handleAddExpense(event)" class="form-card">
+                <h2>记录支出</h2>
+                <div class="form-group">
+                    <label>分类</label>
+                    <select id="exp-category" required>
+                        <option value="食">食 (Food)</option>
+                        <option value="衣">衣 (Clothing)</option>
+                        <option value="住">住 (Housing)</option>
+                        <option value="行">行 (Travel)</option>
+                        <option value="其他">其他 (Others)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>金额 (JPY)</label>
+                    <input type="number" id="exp-amount" min="1" placeholder="例如: 2500" required>
+                </div>
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" id="exp-date" required>
+                </div>
+                <div class="form-group">
+                    <label>标签/备注 (选填)</label>
+                    <input type="text" id="exp-note" placeholder="例如: 游戏氪金 / 晚餐">
+                </div>
+                <button type="submit" class="btn-primary">保存支出</button>
+            </form>
+        </section>
+
+        <!-- 3. 预算设置页面 -->
+        <section id="tab-budget-settings" class="tab-content">
+            <div class="form-card">
+                <h2>食/衣/住/行 周期预算</h2>
+                <div id="recurring-settings-list"></div>
+
+                <button type="button" class="btn-primary" onclick="saveRecurringBudgets(event)">保存周期预算设置</button>
+
+                <!-- 重置数据按钮 -->
+                <div style="margin-top: 25px; border-top: 1px solid #ddd; padding-top: 15px;">
+                    <button type="button" class="btn-danger" onclick="resetApp()" style="width: 100%; padding: 10px; background-color: #dc2626; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                        🔄 重置所有数据（恢复首次运行状态）
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-card" style="margin-top: 15px;">
+                <h2>【其他】单次/追加预算</h2>
+                <form id="single-budget-form" onsubmit="handleAddSingleBudget(event)">
+                    <div class="form-group">
+                        <label>分类</label>
+                        <!-- 仅保留其他选项 -->
+                        <select id="sb-category" required disabled style="background-color: #f3f4f6;">
+                            <option value="其他" selected>其他 (Others)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>追加金额 (JPY)</label>
+                        <input type="number" id="sb-amount" placeholder="例如: 20000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>标签/备注</label>
+                        <input type="text" id="sb-tag" placeholder="例如: 游戏氪金预算" required>
+                    </div>
+                    <button type="submit" class="btn-primary">添加【其他】追加预算</button>
+                </form>
+                <div id="single-budgets-list" class="item-list"></div>
+            </div>
+        </section>
+
+        <!-- 4. 历史账目明细 -->
+        <section id="tab-history" class="tab-content">
+            <div class="form-card">
+                <h2>支出记录明细</h2>
+                <div id="expense-history-list" class="item-list"></div>
+            </div>
+        </section>
+
+        <!-- 5. 数据备份与恢复 -->
+        <section id="tab-backup" class="tab-content">
+            <div class="form-card">
+                <h2>数据备份与迁移</h2>
+                <p>单机存储于手机/电脑本地，可通过 JSON 文件在多设备间传递。</p>
+                <button type="button" class="btn-primary" onclick="exportData()">导出备份文件 (JSON)</button>
+                <hr style="margin: 20px 0;">
+                <label>选择备份文件导入：</label>
+                <input type="file" id="import-file" accept=".json">
+                <button type="button" class="btn-secondary" onclick="importData()">恢复/导入数据</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => { });
+        }
+    </script>
+</body>
+</html>

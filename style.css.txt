@@ -1,0 +1,219 @@
+﻿* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    padding: 15px;
+}
+
+.app-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.app-header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.total-badge {
+    margin-top: 8px;
+    background: #2563eb;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 18px;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+    .tab-btn.active {
+        background: #2563eb;
+        color: white;
+    }
+
+.tab-content {
+    display: none;
+}
+
+    .tab-content.active {
+        display: block;
+    }
+
+.form-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+input[type="number"], input[type="text"], input[type="date"], select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #1f2937;
+}
+
+/* 周期预算配置 Flex 布局 */
+.rec-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.rec-label {
+    width: 30px;
+    font-weight: bold;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.rec-input {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 8px 12px !important;
+    font-size: 16px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 6px !important;
+}
+
+.rec-unit {
+    width: 75px !important;
+    flex-shrink: 0 !important;
+    padding: 8px 4px !important;
+    font-size: 15px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 6px !important;
+    background-color: #fff !important;
+}
+
+.rec-date {
+    width: 125px !important;
+    flex-shrink: 0 !important;
+    padding: 7px 4px !important;
+    font-size: 13px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 6px !important;
+    background-color: #fff !important;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 10px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    padding: 8px 12px;
+    background: #4b5563;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-danger {
+    padding: 4px 8px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 看板卡片与状态色 */
+.card {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 5px solid #2563eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+    .card.positive {
+        border-left-color: #16a34a;
+    }
+
+.card-balance.positive {
+    color: #16a34a;
+}
+
+.card.negative {
+    border-left-color: #dc2626;
+}
+
+.card-balance.negative {
+    color: #dc2626;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.card-meta {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.list-item-title {
+    font-weight: bold;
+}
+
+.list-item-sub {
+    font-size: 12px;
+    color: #6b7280;
+}
