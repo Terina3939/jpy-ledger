@@ -375,14 +375,44 @@ function renderHistory() {
     }
 }
 
+// 兼容 PC 与移动端的精准导出/备份逻辑
 function exportData() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `jpy_ledger_backup_${getTodayString()}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    try {
+        const jsonString = JSON.stringify(appData, null, 2);
+        const fileName = `jpy_ledger_backup_${getTodayString()}.json`;
+        
+        // 1. 优先尝试标准 Blob 文件下载
+        const blob = new Blob([jsonString], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        
+        const downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = fileName;
+        
+        // 针对 Safari / 移动端 DOM 节点的兼容处理
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        
+        // 清理内存
+        setTimeout(() => {
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(url);
+        }, 100);
+
+        // 2. 针对移动端做防拦截兜底（复制到剪贴板提示）
+        setTimeout(() => {
+            if (confirm("已触发导出！\n\n如果您的手机浏览器未弹出文件下载，是否需要直接【复制备份数据到剪贴板】？（可粘贴至手机备忘录保存）")) {
+                navigator.clipboard.writeText(jsonString).then(() => {
+                    alert("备份数据已成功复制到剪贴板！");
+                }).catch(() => {
+                    prompt("复制失败，请手动长按全选下方文本复制：", jsonString);
+                });
+            }
+        }, 800);
+
+    } catch (err) {
+        alert("导出失败：" + err.message);
+    }
 }
 
 function importData() {
