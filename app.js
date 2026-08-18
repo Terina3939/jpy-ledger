@@ -10,14 +10,22 @@ function getFirstDayOfMonth(date = new Date()) {
     return `${year}-${month}-01`;
 }
 
+// 获取当地时间的 YYYY-MM-DD 字符串（避免 UTC 时区相差 9 小时导致的日期混乱）
 function getTodayString() {
-    return new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 function getTomorrowString() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 function getNextMonthFirstDay() {
@@ -33,11 +41,17 @@ function getNextYearFirstDay() {
     return `${year}-01-01`;
 }
 
+// 消除时区误差的精准天数差计算
 function getDaysDifference(startDateStr, endDateStr) {
-    const start = new Date(startDateStr + 'T00:00:00');
-    const end = new Date(endDateStr + 'T00:00:00');
-    const diffTime = end - start;
-    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const [sY, sM, sD] = startDateStr.split('-').map(Number);
+    const [eY, eM, eD] = endDateStr.split('-').map(Number);
+    
+    // 使用 UTC 绝对毫秒数计算，不受当地时区影响
+    const startUTC = Date.UTC(sY, sM - 1, sD);
+    const endUTC = Date.UTC(eY, eM - 1, eD);
+    
+    const diffTime = endUTC - startUTC;
+    return Math.round(diffTime / (1000 * 60 * 60 * 24));
 }
 
 // 初始化默认数据结构
