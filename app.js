@@ -324,7 +324,7 @@ function renderBudgetSettingsForm() {
     }
 }
 
-// 保存周期预算设置（快照当前历史并设置下一周期生效起点）
+// 保存周期预算设置（修改规则时自动快照截至昨天的历史，锁定过去的账目）
 function saveRecurringBudgets(e) {
     if (e && e.preventDefault) e.preventDefault();
 
@@ -336,12 +336,27 @@ function saveRecurringBudgets(e) {
         if (amtInput && unitSelect && dateInput) {
             const newAmt = Number(amtInput.value);
             const newUnit = unitSelect.value;
-            const newStartDate = dateInput.value || getFirstDayOfMonth();
+            const newStartDate = dateInput.value || getTodayString();
 
-            const rec = appData.recurringBudgets[cat] || { amount: 0, unit: 'day', startDate: getFirstDayOfMonth(), baseAmount: 0 };
+            const rec = appData.recurringBudgets[cat] || { 
+                amount: 0, 
+                unit: 'day', 
+                startDate: getFirstDayOfMonth(), 
+                baseAmount: 0 
+            };
 
-            // 当金额、周期单位或手动选择的起算日期发生改变时更新
             if (rec.amount !== newAmt || rec.unit !== newUnit || rec.startDate !== newStartDate) {
+                // 1. 获取变更这一刻前，系统计算出的总额度（含旧规则给今天算的份额）
+                const currentAccrued = getRecurringBudgetAccrued(cat);
+                
+                // 2. 若新起算日设为今天，先剔除旧规则给“今天”预算的份额，防止今天被重算
+                let adjustedBase = currentAccrued;
+                if (newStartDate === getTodayString() && rec.amount > 0) {
+                    adjustedBase = currentAccrued - rec.amount;
+                }
+
+                // 3. 锁定历史底座并写入新规则
+                rec.baseAmount = Math.max(0, adjustedBase);
                 rec.amount = newAmt;
                 rec.unit = newUnit;
                 rec.startDate = newStartDate;
@@ -350,7 +365,7 @@ function saveRecurringBudgets(e) {
     });
 
     saveData();
-    alert("周期预算与起算日期保存成功！");
+    alert("周期预算修改成功！过去的预算额度已自动锁定保存，新规则即刻生效。");
     renderAll();
 }
 
