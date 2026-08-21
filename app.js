@@ -324,7 +324,7 @@ function renderBudgetSettingsForm() {
     }
 }
 
-// 保存周期预算设置（修改规则时自动快照截至昨天的历史，锁定过去的账目）
+// 保存周期预算设置（精准区分：修改起算日则结转历史，保持起算日则直接覆盖更新）
 function saveRecurringBudgets(e) {
     if (e && e.preventDefault) e.preventDefault();
 
@@ -336,7 +336,7 @@ function saveRecurringBudgets(e) {
         if (amtInput && unitSelect && dateInput) {
             const newAmt = Number(amtInput.value);
             const newUnit = unitSelect.value;
-            const newStartDate = dateInput.value || getTodayString();
+            const newStartDate = dateInput.value || getFirstDayOfMonth();
 
             const rec = appData.recurringBudgets[cat] || { 
                 amount: 0, 
@@ -345,18 +345,24 @@ function saveRecurringBudgets(e) {
                 baseAmount: 0 
             };
 
+            // 检查是否有变动
             if (rec.amount !== newAmt || rec.unit !== newUnit || rec.startDate !== newStartDate) {
-                // 1. 获取变更这一刻前，系统计算出的总额度（含旧规则给今天算的份额）
-                const currentAccrued = getRecurringBudgetAccrued(cat);
                 
-                // 2. 若新起算日设为今天，先剔除旧规则给“今天”预算的份额，防止今天被重算
-                let adjustedBase = currentAccrued;
-                if (newStartDate === getTodayString() && rec.amount > 0) {
-                    adjustedBase = currentAccrued - rec.amount;
-                }
+                // 情况 1：起算日发生了改变 -> 触发历史结转（场景 B）
+                if (rec.startDate !== newStartDate) {
+                    const currentAccrued = getRecurringBudgetAccrued(cat);
+                    
+                    let adjustedBase = currentAccrued;
+                    // 若新起算日设为今天，先剔除旧规则给“今天”预算的份额，防止今天被重算
+                    if (newStartDate === getTodayString() && rec.amount > 0) {
+                        adjustedBase = currentAccrued - rec.amount;
+                    }
 
-                // 3. 锁定历史底座并写入新规则
-                rec.baseAmount = Math.max(0, adjustedBase);
+                    rec.baseAmount = Math.max(0, adjustedBase);
+                }
+                // 情况 2：起算日未变，仅修改金额/周期 -> 直接覆盖（场景 A），baseAmount 保持原样不动！
+
+                // 更新规则参数
                 rec.amount = newAmt;
                 rec.unit = newUnit;
                 rec.startDate = newStartDate;
@@ -365,7 +371,7 @@ function saveRecurringBudgets(e) {
     });
 
     saveData();
-    alert("周期预算修改成功！过去的预算额度已自动锁定保存，新规则即刻生效。");
+    alert("周期预算修改成功！");
     renderAll();
 }
 
